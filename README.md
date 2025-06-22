@@ -114,3 +114,87 @@ A simple and clean RESTful API for managing a library's book inventory and borro
   "data": { ... }
 }
 ```
+
+### Update Book
+
+**PATCH** `/api/books/:bookId`
+
+**Request Body:**
+```json
+{
+  "copies": 50
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Book updated successfully",
+  "data": { ... }
+}
+```
+
+### Delete Book
+
+**DELETE** `/api/books/:bookId`
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Book deleted successfully",
+  "data": null
+}
+```
+
+
+## Borrow Endpoints
+
+### Borrow Book
+
+**POST** `/api/borrow`
+
+**Request Body:**
+
+```json
+{
+  "book": "64ab3f9e2a4b5c6d7e8f9012",
+  "quantity": 2,
+  "dueDate": "2025-07-18T00:00:00.000Z"
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Book borrowed successfully",
+  "data": { ... }
+}
+```
+
+### Borrow Summary
+
+**GET** `/api/borrow`
+
+**Request Body:**
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Borrowed books summary retrieved successfully",
+  "data": [
+    {
+      "book": {
+        "title": "The Theory of Everything",
+        "isbn": "9780553380163"
+      },
+      "totalQuantity": 5
+    }
+  ]
+}
+```
