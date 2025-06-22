@@ -46,7 +46,7 @@ bookRouter.get("/", async (req: Request, res: Response) => {
 
   const findData = await Book.find(query)
     .sort(sortConfig)
-    .limit(parseInt(limit));
+    .limit(parseInt(limit) || 10);
 
   res.status(201).json({
     success: true,
