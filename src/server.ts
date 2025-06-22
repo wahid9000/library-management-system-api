@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import "dotenv/config";
 import app from "./app";
 import { Server } from "http";
-const port = 5000;
+const port = process.env.PORT || 5000;
 let server: Server;
 
 async function main() {
