@@ -1,6 +1,6 @@
 # 📚 Library Management System API
 
-A simple and clean RESTful API for managing a library's book inventory and borrow records — built with **TypeScript**, **Express.js**, and **MongoDB (Mongoose)**.
+A simple and clean Library Management System API — built with **TypeScript**, **Express.js**, and **MongoDB (Mongoose)**.
 
 ## Key Features :
 
