@@ -8,7 +8,7 @@ let server: Server;
 async function main() {
   try {
     await mongoose.connect(
-      `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@cluster0.wy87kp4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
+      `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@cluster0.wy87kp4.mongodb.net/${process.env.DATABASE_NAME}?retryWrites=true&w=majority&appName=Cluster0`
     );
     console.log("Connected to MongoDB successfully !!!");
     server = app.listen(port, () => {
