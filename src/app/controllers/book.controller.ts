@@ -64,32 +64,78 @@ bookRouter.get("/", async (req: Request, res: Response) => {
 bookRouter.get("/:bookId", async (req: Request, res: Response) => {
   const bookId = req.params.bookId;
   const singleBookData = await Book.findById(bookId);
-  res.status(201).json({
-    success: true,
-    message: "Book retrieved successfully",
-    data: singleBookData,
-  });
+  if (singleBookData) {
+    res.status(201).json({
+      success: true,
+      message: "Book retrieved successfully",
+      data: singleBookData,
+    });
+  } else {
+    res.status(404).json({
+      message: "Book ID not found",
+      success: false,
+      error: {},
+    });
+  }
 });
 
 bookRouter.patch("/:bookId", async (req: Request, res: Response) => {
-  const bookId = req.params.bookId;
-  const body = req.body;
-  const updatedBookData = await Book.findByIdAndUpdate(bookId, body, {
-    new: true,
-  });
-  res.status(201).json({
-    success: true,
-    message: "Book updated successfully",
-    data: updatedBookData,
-  });
+  try {
+    const bookId = req.params.bookId;
+    const body = req.body;
+    const updatedBookData = await Book.findByIdAndUpdate(bookId, body, {
+      new: true,
+    });
+    if (updatedBookData) {
+      res.status(201).json({
+        success: true,
+        message: "Book updated successfully",
+        data: updatedBookData,
+      });
+    } else {
+      res.status(404).json({
+        message: "Book ID not found",
+        success: false,
+        error: {},
+      });
+    }
+  } catch (error: any) {
+    res.status(400).json({
+      message: "Validation failed",
+      success: false,
+      error: {
+        name: error.name,
+        errors: error.errors,
+      },
+    });
+  }
 });
 
 bookRouter.delete("/:bookId", async (req: Request, res: Response) => {
-  const bookId = req.params.bookId;
-  const deletedBookData = await Book.findByIdAndDelete(bookId, { new: true });
-  res.status(201).json({
-    success: true,
-    message: "Book deleted successfully",
-    data: deletedBookData,
-  });
+  try {
+    const bookId = req.params.bookId;
+    const deletedBookData = await Book.findByIdAndDelete(bookId, { new: true });
+    if (deletedBookData) {
+      res.status(201).json({
+        success: true,
+        message: "Book deleted successfully",
+        data: deletedBookData,
+      });
+    } else {
+      res.status(404).json({
+        message: "Book ID not found",
+        success: false,
+        error: {},
+      });
+    }
+  } catch (error: any) {
+    res.status(400).json({
+      message: "Validation failed",
+      success: false,
+      error: {
+        name: error.name,
+        errors: error.errors,
+      },
+    });
+  }
 });
