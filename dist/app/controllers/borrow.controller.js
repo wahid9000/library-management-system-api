@@ -35,10 +35,18 @@ exports.borrowRouter.post("/", (req, res) => __awaiter(void 0, void 0, void 0, f
             });
         }
         else {
-            res.status(201).json({
-                success: false,
-                message: isBookCopiesAvailable === null || isBookCopiesAvailable === void 0 ? void 0 : isBookCopiesAvailable.message,
-            });
+            if (isBookCopiesAvailable.status == 201) {
+                res.status(201).json({
+                    success: false,
+                    message: isBookCopiesAvailable === null || isBookCopiesAvailable === void 0 ? void 0 : isBookCopiesAvailable.message,
+                });
+            }
+            else {
+                res.status(404).json({
+                    success: false,
+                    message: isBookCopiesAvailable === null || isBookCopiesAvailable === void 0 ? void 0 : isBookCopiesAvailable.message,
+                });
+            }
         }
     }
     catch (error) {

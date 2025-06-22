@@ -29,21 +29,30 @@ const borrowSchema = new mongoose_1.Schema({
     dueDate: { type: Date, required: true },
 }, {
     timestamps: true,
+    versionKey: false,
 });
 borrowSchema.static("isBookCopiesAvailable", function (bookId, numberOfCopiesToBorrow) {
     return __awaiter(this, void 0, void 0, function* () {
         const bookInfo = yield book_model_1.Book.findOne({ _id: bookId });
+        if (!bookInfo) {
+            return {
+                status: 404,
+                success: false,
+                message: `No book found with the ID ${bookId}`,
+            };
+        }
         if (bookInfo === null || bookInfo === void 0 ? void 0 : bookInfo.available) {
             const numberOfCopiesAvailable = (bookInfo === null || bookInfo === void 0 ? void 0 : bookInfo.copies) || 0;
             if (numberOfCopiesAvailable === numberOfCopiesToBorrow) {
                 yield book_model_1.Book.findByIdAndUpdate(bookId, { available: false }, { new: true });
-                return { success: true, message: "Successfully borrowed" };
+                return { status: 201, success: true, message: "" };
             }
             else if (numberOfCopiesAvailable > numberOfCopiesToBorrow) {
-                return { success: true, message: "Successfully borrowed" };
+                return { status: 201, success: true, message: "" };
             }
             else {
                 return {
+                    status: 201,
                     success: false,
                     message: `We have ${numberOfCopiesAvailable} copies of book available for borrow at the moment`,
                 };
@@ -51,8 +60,9 @@ borrowSchema.static("isBookCopiesAvailable", function (bookId, numberOfCopiesToB
         }
         else {
             return {
+                status: 201,
                 success: false,
-                message: `This book is not available`,
+                message: `This book is not available for borrow. Please try another one`,
             };
         }
     });
