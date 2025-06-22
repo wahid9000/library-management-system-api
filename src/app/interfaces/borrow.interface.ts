@@ -11,6 +11,7 @@ export interface BookAvailableModelType extends Model<IBorrow> {
     bookId: string,
     numberOfCopiesToBorrow: number
   ): {
+    status: number;
     success: boolean;
     message: string;
   };

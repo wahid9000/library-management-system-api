@@ -25,10 +25,17 @@ borrowRouter.post("/", async (req: Request, res: Response) => {
         data: createdData,
       });
     } else {
-      res.status(201).json({
-        success: false,
-        message: isBookCopiesAvailable?.message,
-      });
+      if (isBookCopiesAvailable.status == 201) {
+        res.status(201).json({
+          success: false,
+          message: isBookCopiesAvailable?.message,
+        });
+      } else {
+        res.status(404).json({
+          success: false,
+          message: isBookCopiesAvailable?.message,
+        });
+      }
     }
   } catch (error: any) {
     res.status(400).json({

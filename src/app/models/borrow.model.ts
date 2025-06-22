@@ -24,6 +24,7 @@ const borrowSchema = new Schema<IBorrow, BookAvailableModelType>(
   },
   {
     timestamps: true,
+    versionKey: false,
   }
 );
 
@@ -31,6 +32,15 @@ borrowSchema.static(
   "isBookCopiesAvailable",
   async function (bookId, numberOfCopiesToBorrow) {
     const bookInfo = await Book.findOne({ _id: bookId });
+
+    if (!bookInfo) {
+      return {
+        status: 404,
+        success: false,
+        message: `No book found with the ID ${bookId}`,
+      };
+    }
+
     if (bookInfo?.available) {
       const numberOfCopiesAvailable = bookInfo?.copies || 0;
       if (numberOfCopiesAvailable === numberOfCopiesToBorrow) {
@@ -39,19 +49,21 @@ borrowSchema.static(
           { available: false },
           { new: true }
         );
-        return { success: true, message: "Successfully borrowed" };
+        return { status: 201, success: true, message: "" };
       } else if (numberOfCopiesAvailable > numberOfCopiesToBorrow) {
-        return { success: true, message: "Successfully borrowed" };
+        return { status: 201, success: true, message: "" };
       } else {
         return {
+          status: 201,
           success: false,
           message: `We have ${numberOfCopiesAvailable} copies of book available for borrow at the moment`,
         };
       }
     } else {
       return {
+        status: 201,
         success: false,
-        message: `This book is not available`,
+        message: `This book is not available for borrow. Please try another one`,
       };
     }
   }
