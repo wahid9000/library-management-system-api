@@ -35,11 +35,13 @@ bookRouter.post("/", async (req, res) => {
 
 bookRouter.get("/", async (req: Request, res: Response) => {
   const { filter, sort, sortBy, limit } = req.query;
-  const query: any = {};
+  const query: Record<string, string> = {};
   const sortConfig: Record<string, "asc" | "desc"> = {};
+
   if (filter) {
     query.genre = filter;
   }
+
   if (sortBy && sort) {
     sortConfig[sortBy] = sort;
   }
