@@ -16,7 +16,7 @@ const borrowSchema = new Schema<IBorrow, BookAvailableModelType>(
           return v > 0;
         },
         message: function (props) {
-          return `Atleast 1 copy of book must be borrowed`;
+          return `At least 1 copy of book must be borrowed`;
         },
       },
     },

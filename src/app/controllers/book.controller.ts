@@ -10,13 +10,16 @@ const createBookValidator = z.object({
   genre: z.string(),
   isbn: z.string(),
   description: z.string().optional(),
-  copies: z.number().min(0, "Copies must be a positive number"),
+  copies: z.number(),
   available: z.boolean(),
 });
 
 bookRouter.post("/", async (req, res) => {
   try {
     const payload = await createBookValidator.parseAsync(req.body);
+    if (payload.copies === 0) {
+      payload.available = false;
+    }
     const createdData = await Book.create(payload);
     res.status(201).json({
       success: true,
@@ -27,7 +30,10 @@ bookRouter.post("/", async (req, res) => {
     res.status(400).json({
       message: "Validation failed",
       success: false,
-      error: error.message,
+      error: {
+        name: error.name,
+        errors: error.errors || JSON.parse(error.message),
+      },
     });
   }
 });
@@ -36,18 +42,17 @@ bookRouter.get("/", async (req: Request, res: Response) => {
   const { filter, sort, sortBy, limit } = req.query;
   const query: Record<string, string> = {};
   const sortConfig: Record<string, "asc" | "desc"> = {};
+  const limitValue = typeof limit === "string" ? parseInt(limit) : 10;
 
-  if (filter) {
+  if (typeof filter === "string") {
     query.genre = filter;
   }
 
-  if (sortBy && sort) {
-    sortConfig[sortBy] = sort;
+  if (typeof sortBy === "string" && typeof sort === "string") {
+    sortConfig[sortBy] = sort as "asc" | "desc";
   }
 
-  const findData = await Book.find(query)
-    .sort(sortConfig)
-    .limit(parseInt(limit) || 10);
+  const findData = await Book.find(query).sort(sortConfig).limit(limitValue);
 
   res.status(201).json({
     success: true,
