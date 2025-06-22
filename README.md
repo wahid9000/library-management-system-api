@@ -25,9 +25,9 @@ A simple and clean Library Management System API — built with **TypeScript**, 
 
 3. **Create .env file**
     ```bash
-    MONGO_USERNAME=libraryManagement
-    MONGO_PASSWORD=libraryManagementPH
-    DATABASE_NAME=libraryManagementDB
+    MONGO_USERNAME=
+    MONGO_PASSWORD=
+    DATABASE_NAME=
     PORT=5000
 
 4. **Run development server**
