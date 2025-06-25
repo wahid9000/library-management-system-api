@@ -79,7 +79,7 @@ bookRouter.get("/:bookId", async (req: Request, res: Response) => {
   }
 });
 
-bookRouter.patch("/:bookId", async (req: Request, res: Response) => {
+bookRouter.put("/:bookId", async (req: Request, res: Response) => {
   try {
     const bookId = req.params.bookId;
     const body = req.body;
