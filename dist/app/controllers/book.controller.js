@@ -119,7 +119,7 @@ exports.bookRouter.get("/:bookId", (req, res) => __awaiter(void 0, void 0, void 
         });
     }
 }));
-exports.bookRouter.patch("/:bookId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.bookRouter.put("/:bookId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const bookId = req.params.bookId;
         const body = req.body;
