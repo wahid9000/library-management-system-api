@@ -17,32 +17,49 @@ const createBookValidator = z.object({
 bookRouter.post("/", async (req, res) => {
   try {
     const payload = await createBookValidator.parseAsync(req.body);
+
     if (payload.copies === 0) {
       payload.available = false;
     }
+
     const createdData = await Book.create(payload);
+
     res.status(201).json({
       success: true,
       message: "Book created successfully",
       data: createdData,
     });
   } catch (error: any) {
-    res.status(400).json({
-      message: "Validation failed",
-      success: false,
-      error: {
-        name: error.name,
-        errors: error.errors || JSON.parse(error.message),
-      },
-    });
+    if (error.code === 11000) {
+      // It's a Mongo duplicate key error
+      res.status(400).json({
+        message: "ISBN number must be unique",
+        success: false,
+        error: {
+          name: error.name,
+          errors: error.errorResponse,
+        },
+      });
+    } else {
+      res.status(400).json({
+        message: "Validation failed",
+        success: false,
+        error: {
+          name: error.name,
+          errors: error.errors || JSON.parse(error.message),
+        },
+      });
+    }
   }
 });
 
 bookRouter.get("/", async (req: Request, res: Response) => {
-  const { filter, sort, sortBy, limit } = req.query;
+  const { filter, sort, sortBy, limit, page } = req.query;
   const query: Record<string, string> = {};
   const sortConfig: Record<string, "asc" | "desc"> = {};
   const limitValue = typeof limit === "string" ? parseInt(limit) : 10;
+  const pageValue = typeof page === "string" ? parseInt(page) : 1;
+  const skipValue = (pageValue - 1) * limitValue;
 
   if (typeof filter === "string") {
     query.genre = filter;
@@ -52,18 +69,30 @@ bookRouter.get("/", async (req: Request, res: Response) => {
     sortConfig[sortBy] = sort as "asc" | "desc";
   }
 
-  const findData = await Book.find(query).sort(sortConfig).limit(limitValue);
+  const total = await Book.countDocuments(query);
+
+  const findData = await Book.find(query)
+    .sort(sortConfig)
+    .skip(skipValue)
+    .limit(limitValue);
 
   res.status(201).json({
     success: true,
     message: "Books retrived successfully",
     data: findData,
+    meta: {
+      total,
+      page: pageValue,
+      limit: limitValue,
+      totalPages: Math.ceil(total / limitValue),
+    },
   });
 });
 
 bookRouter.get("/:bookId", async (req: Request, res: Response) => {
   const bookId = req.params.bookId;
   const singleBookData = await Book.findById(bookId);
+
   if (singleBookData) {
     res.status(201).json({
       success: true,
@@ -86,6 +115,7 @@ bookRouter.put("/:bookId", async (req: Request, res: Response) => {
     const updatedBookData = await Book.findByIdAndUpdate(bookId, body, {
       new: true,
     });
+    console.log("🚀 ~ bookRouter.put ~ updatedBookData:", updatedBookData);
     if (updatedBookData) {
       res.status(201).json({
         success: true,
@@ -100,14 +130,26 @@ bookRouter.put("/:bookId", async (req: Request, res: Response) => {
       });
     }
   } catch (error: any) {
-    res.status(400).json({
-      message: "Validation failed",
-      success: false,
-      error: {
-        name: error.name,
-        errors: error.errors,
-      },
-    });
+    if (error.code === 11000) {
+      // It's a Mongo duplicate key error
+      res.status(400).json({
+        message: "ISBN number must be unique",
+        success: false,
+        error: {
+          name: error.name,
+          errors: error.errorResponse,
+        },
+      });
+    } else {
+      res.status(400).json({
+        message: "Validation failed",
+        success: false,
+        error: {
+          name: error.name,
+          errors: error.errors,
+        },
+      });
+    }
   }
 });
 

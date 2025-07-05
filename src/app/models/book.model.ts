@@ -21,6 +21,7 @@ const bookSchema = new Schema<IBook>(
       type: String,
       required: true,
       unique: true,
+      index: true,
     },
     description: { type: String },
     copies: {
