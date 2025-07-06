@@ -21,6 +21,7 @@ const bookSchema = new mongoose_1.Schema({
         type: String,
         required: true,
         unique: true,
+        index: true,
     },
     description: { type: String },
     copies: {

@@ -73,32 +73,57 @@ exports.bookRouter.post("/", (req, res) => __awaiter(void 0, void 0, void 0, fun
         });
     }
     catch (error) {
-        res.status(400).json({
-            message: "Validation failed",
-            success: false,
-            error: {
-                name: error.name,
-                errors: error.errors || JSON.parse(error.message),
-            },
-        });
+        if (error.code === 11000) {
+            // It's a Mongo duplicate key error
+            res.status(400).json({
+                message: "ISBN number must be unique",
+                success: false,
+                error: {
+                    name: error.name,
+                    errors: error.errorResponse,
+                },
+            });
+        }
+        else {
+            res.status(400).json({
+                message: "Validation failed",
+                success: false,
+                error: {
+                    name: error.name,
+                    errors: error.errors || JSON.parse(error.message),
+                },
+            });
+        }
     }
 }));
 exports.bookRouter.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { filter, sort, sortBy, limit } = req.query;
+    const { filter, sort, sortBy, limit, page } = req.query;
     const query = {};
     const sortConfig = {};
     const limitValue = typeof limit === "string" ? parseInt(limit) : 10;
+    const pageValue = typeof page === "string" ? parseInt(page) : 1;
+    const skipValue = (pageValue - 1) * limitValue;
     if (typeof filter === "string") {
         query.genre = filter;
     }
     if (typeof sortBy === "string" && typeof sort === "string") {
         sortConfig[sortBy] = sort;
     }
-    const findData = yield book_model_1.Book.find(query).sort(sortConfig).limit(limitValue);
+    const total = yield book_model_1.Book.countDocuments(query);
+    const findData = yield book_model_1.Book.find(query)
+        .sort(sortConfig)
+        .skip(skipValue)
+        .limit(limitValue);
     res.status(201).json({
         success: true,
         message: "Books retrived successfully",
         data: findData,
+        meta: {
+            total,
+            page: pageValue,
+            limit: limitValue,
+            totalPages: Math.ceil(total / limitValue),
+        },
     });
 }));
 exports.bookRouter.get("/:bookId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -126,6 +151,7 @@ exports.bookRouter.put("/:bookId", (req, res) => __awaiter(void 0, void 0, void 
         const updatedBookData = yield book_model_1.Book.findByIdAndUpdate(bookId, body, {
             new: true,
         });
+        console.log("🚀 ~ bookRouter.put ~ updatedBookData:", updatedBookData);
         if (updatedBookData) {
             res.status(201).json({
                 success: true,
@@ -142,14 +168,27 @@ exports.bookRouter.put("/:bookId", (req, res) => __awaiter(void 0, void 0, void 
         }
     }
     catch (error) {
-        res.status(400).json({
-            message: "Validation failed",
-            success: false,
-            error: {
-                name: error.name,
-                errors: error.errors,
-            },
-        });
+        if (error.code === 11000) {
+            // It's a Mongo duplicate key error
+            res.status(400).json({
+                message: "ISBN number must be unique",
+                success: false,
+                error: {
+                    name: error.name,
+                    errors: error.errorResponse,
+                },
+            });
+        }
+        else {
+            res.status(400).json({
+                message: "Validation failed",
+                success: false,
+                error: {
+                    name: error.name,
+                    errors: error.errors,
+                },
+            });
+        }
     }
 }));
 exports.bookRouter.delete("/:bookId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
